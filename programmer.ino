@@ -1344,15 +1344,26 @@ byte get_pc()
 void set_pc(byte pc)
 {
   byte n, data[2], jmp[2], current_pc = get_pc();
+  struct opcodes_struct *opcodes = mode_4bit ? opcodes_4bit : opcodes_8bit;
 
   // if we're already at address "pc" then there is nothing to do
   if( current_pc == pc ) return;
 
   // construct command: JMP pc
-  if( mode_4bit )
-    { n = 1; jmp[0] = B11100000 | (pc & 0x0f); }
+  int i;
+  for(i=0; opcodes[i].mnemonic!=NULL; i++)
+    if( strncasecmp(opcodes[i].mnemonic, "JMP", 3)==0 )
+      break;
+
+  if( opcodes[i].mnemonic==NULL )
+    {
+      Serial.print(F("Error in set_pc: Can't find JMP opcode."));
+      return;
+    }
+  else if( mode_4bit )
+    { n = 1; jmp[0] = opcodes[i].opcode | (pc & 0x0f); }
   else
-    { n = 2; jmp[0] = B11101100;  jmp[1] = pc; }
+    { n = 2; jmp[0] = opcodes[i].opcode;  jmp[1] = pc; }
 
   // get memory content at current PC location
   read_ram(data, current_pc, n); 
