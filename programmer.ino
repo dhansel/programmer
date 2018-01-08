@@ -806,7 +806,7 @@ void disassemble(int a = 0, int e = -1)
           Serial.print(F("   "));
           Serial.print(opcodes_4bit[b>>4].mnemonic);
           if( opcodes_4bit[b>>4].has_arg ) Serial.print(dec2hex(b&0x0f));
-          a &= 15;
+          //a &= 15;
         }
       else
         {
